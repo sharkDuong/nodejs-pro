@@ -1,60 +1,55 @@
-import getConnection from "config/database";
+import { prisma } from "config/client";
 
 const handleCreateUser = async (
-  fullname: String,
-  email: String,
-  address: String,
+  fullname: string,
+  email: string,
+  address: string,
 ) => {
-  //insert into database
-  const connection = await getConnection();
-  try {
-    const sql =
-      "INSERT INTO `users`(`name`, `email`,`address`) VALUES (?, ?,?)";
-    const values = [fullname, email, address];
-    const [result, fields] = await connection.execute(sql, values);
-    return result;
-  } catch (err) {
-    console.log(err);
-    return [];
-  }
+  return prisma.user.create({
+    data: {
+      name: fullname,
+      email,
+      address,
+    },
+  });
 };
+
 const getAllUsers = async () => {
-  const connection = await getConnection();
-  // A simple SELECT query
-  try {
-    const [results, fields] = await connection.query("SELECT * FROM `users` ");
-    return results;
-  } catch (err) {
-    console.log(err);
-    return [];
-  }
-  return "ngocduong";
+  return prisma.user.findMany();
 };
 
 const handleDeleteUser = async (id: string) => {
-  try {
-    const connection = await getConnection();
-    const sql = "DELETE FROM `users` WHERE `name` = ? ";
-    const values = [id];
-
-    const [result, fields] = await connection.execute(sql, values);
-    return result;
-  } catch (err) {
-    console.log(err);
-    return [];
-  }
+  return prisma.user.delete({
+    where: { id: Number(id) },
+  });
 };
+
 const getUserById = async (id: string) => {
-  try {
-    const connection = await getConnection();
-    const sql = "SELECT * FROM `users` WHERE `id` = ? ";
-    const values = [id];
-
-    const [result, fields] = await connection.execute(sql, values);
-    return result;
-  } catch (err) {
-    console.log(err);
-    return [];
-  }
+  return prisma.user.findUnique({
+    where: { id: Number(id) },
+  });
 };
-export { handleCreateUser, getAllUsers, handleDeleteUser, getUserById };
+
+const updateUserById = async (
+  id: string,
+  fullName: string,
+  email: string,
+  address: string,
+) => {
+  return prisma.user.update({
+    where: { id: +id },
+    data: {
+      name: fullName,
+      email,
+      address,
+    },
+  });
+};
+
+export {
+  handleCreateUser,
+  getAllUsers,
+  handleDeleteUser,
+  getUserById,
+  updateUserById,
+};
